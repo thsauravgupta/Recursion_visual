@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recursion Tree Visualizer</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="container flex items-center justify-between">
+                <div class="flex items-center gap-8">
+                    <h1 class="app-title">Recursion Tree Visualizer</h1>
+                    <button id="theme-toggle-btn" class="btn btn--outline btn--sm" aria-label="Toggle theme">
+                        <span id="theme-icon">🌙</span>
+                    </button>
+                </div>
+                <button id="help-btn" class="btn btn--outline btn--sm">Help</button>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="container">
+                <div class="layout-grid">
+                    <!-- Code Editor Panel -->
+                    <div class="panel code-panel">
+                        <div class="panel-header">
+                            <h3>Code Editor</h3>
+                            <div class="template-selector">
+                                <label for="template-select" class="form-label">Template:</label>
+                                <select id="template-select" class="form-control">
+                                    <option value="">Select Template</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="panel-body">
+                            <div class="code-editor-container">
+                                <textarea id="code-editor" class="form-control code-editor" placeholder="Enter your recursive function here..."></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="function-params" class="form-label">Function Parameters:</label>
+                                <input type="text" id="function-params" class="form-control" placeholder="e.g., 5 or [1,2,3], 2">
+                            </div>
+                            <div class="form-group">
+                                <label for="global-vars" class="form-label">Global Variables (optional):</label>
+                                <textarea id="global-vars" class="form-control" rows="2" placeholder="e.g., const memo = {};"></textarea>
+                            </div>
+                            <div class="editor-actions">
+                                <div class="button-group">
+                                    <button id="run-btn" class="btn btn--primary">Run</button>
+                                    <button id="reset-btn" class="btn btn--outline">Reset</button>
+                                </div>
+                                <div class="execution-status">
+                                    <span id="status-text" class="status status--info">Ready</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Control Panel -->
+                    <div class="panel control-panel">
+                        <div class="panel-header">
+                            <h3>Execution Controls</h3>
+                        </div>
+                        <div class="panel-body">
+                            <div class="controls-row">
+                                <button id="play-pause-btn" class="btn btn--primary" disabled>▶️ Play</button>
+                                <div class="step-buttons">
+                                    <button id="step-back-btn" class="btn btn--outline" disabled>⏮️</button>
+                                    <button id="step-forward-btn" class="btn btn--outline" disabled>⏭️</button>
+                                </div>
+                            </div>
+                            <div class="speed-control">
+                                <label for="speed-slider" class="form-label">Animation Speed:</label>
+                                <div class="speed-slider-container">
+                                    <input type="range" id="speed-slider" class="speed-slider" min="0" max="4" step="1" value="1">
+                                    <div class="speed-labels">
+                                        <span>0.5x</span>
+                                        <span>1x</span>
+                                        <span>2x</span>
+                                        <span>3x</span>
+                                        <span>5x</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="execution-info">
+                                <div class="info-item">
+                                    <span class="info-label">Step:</span>
+                                    <span id="current-step">0</span> / <span id="total-steps">0</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Call Depth:</span>
+                                    <span id="call-depth">0</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Max Depth:</span>
+                                    <span id="max-depth">0</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Visualization Panel -->
+                    <div class="panel visualization-panel">
+                        <div class="panel-header">
+                            <h3>Tree Visualization</h3>
+                            <div class="visualization-controls">
+                                <button id="zoom-in-btn" class="btn btn--outline btn--sm">🔍+</button>
+                                <button id="zoom-out-btn" class="btn btn--outline btn--sm">🔍-</button>
+                                <button id="center-btn" class="btn btn--outline btn--sm">⌖</button>
+                            </div>
+                        </div>
+                        <div class="panel-body">
+                            <div class="tree-container">
+                                <svg id="tree-svg" width="100%" height="100%">
+                                    <defs>
+                                        <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+                                            <polygon points="0 0, 10 3.5, 0 7" fill="var(--color-text-secondary)" />
+                                        </marker>
+                                    </defs>
+                                    <g id="tree-group"></g>
+                                </svg>
+                                <div id="tree-legend" class="tree-legend">
+                                    <div class="legend-item">
+                                        <div class="legend-color" style="background-color: #3B82F6;"></div>
+                                        <span>Active</span>
+                                    </div>
+                                    <div class="legend-item">
+                                        <div class="legend-color" style="background-color: #10B981;"></div>
+                                        <span>Completed</span>
+                                    </div>
+                                    <div class="legend-item">
+                                        <div class="legend-color" style="background-color: #EF4444;"></div>
+                                        <span>Base Case</span>
+                                    </div>
+                                    <div class="legend-item">
+                                        <div class="legend-color" style="background-color: #6B7280;"></div>
+                                        <span>Pending</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Info Panel -->
+                    <div class="panel info-panel">
+                        <div class="panel-header">
+                            <h3>Execution Details</h3>
+                        </div>
+                        <div class="panel-body">
+                            <div class="info-tabs">
+                                <button class="tab-btn active" data-tab="call-stack">Call Stack</button>
+                                <button class="tab-btn" data-tab="complexity">Complexity</button>
+                                <button class="tab-btn" data-tab="statistics">Statistics</button>
+                            </div>
+                            <div class="tab-content">
+                                <div id="call-stack-tab" class="tab-pane active">
+                                    <div id="call-stack" class="call-stack">
+                                        <!-- Call stack items will be added here -->
+                                    </div>
+                                </div>
+                                <div id="complexity-tab" class="tab-pane">
+                                    <div class="complexity-info">
+                                        <div class="complexity-item">
+                                            <span class="complexity-label">Time Complexity:</span>
+                                            <span id="time-complexity">-</span>
+                                        </div>
+                                        <div class="complexity-item">
+                                            <span class="complexity-label">Space Complexity:</span>
+                                            <span id="space-complexity">-</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div id="statistics-tab" class="tab-pane">
+                                    <div class="statistics-info">
+                                        <div class="stat-item">
+                                            <span class="stat-label">Total Calls:</span>
+                                            <span id="total-calls">0</span>
+                                        </div>
+                                        <div class="stat-item">
+                                            <span class="stat-label">Base Case Calls:</span>
+                                            <span id="base-case-calls">0</span>
+                                        </div>
+                                        <div class="stat-item">
+                                            <span class="stat-label">Execution Time:</span>
+                                            <span id="execution-time">0ms</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Help Modal -->
+        <div id="help-modal" class="modal hidden">
+            <div class="modal-backdrop"></div>
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>How to Use Recursion Tree Visualizer</h2>
+                    <button id="close-help-btn" class="btn btn--outline btn--sm">×</button>
+                </div>
+                <div class="modal-body">
+                    <h3>Getting Started</h3>
+                    <ol>
+                        <li>Choose a template from the dropdown or write your own recursive function</li>
+                        <li>Set function parameters in the input field</li>
+                        <li>Click "Run" to start the visualization</li>
+                        <li>Use the control buttons to play, pause, or step through execution</li>
+                        <li>Hover over tree nodes to see call details</li>
+                    </ol>
+                    <h3>Controls</h3>
+                    <ul>
+                        <li><strong>Play/Pause:</strong> Start or stop the animation</li>
+                        <li><strong>Step Forward/Back:</strong> Move through execution one step at a time</li>
+                        <li><strong>Speed Slider:</strong> Adjust animation speed</li>
+                        <li><strong>Zoom:</strong> Zoom in/out of the tree visualization</li>
+                    </ul>
+                    <h3>Node Colors</h3>
+                    <ul>
+                        <li><strong>Blue:</strong> Currently executing</li>
+                        <li><strong>Green:</strong> Completed execution</li>
+                        <li><strong>Red:</strong> Base case reached</li>
+                        <li><strong>Gray:</strong> Pending execution</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tooltip -->
+        <div id="tooltip" class="tooltip hidden">
+            <div class="tooltip-content"></div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
