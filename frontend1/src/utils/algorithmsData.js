@@ -1,6 +1,12 @@
 // Template algorithms for the visualizer
 export const algorithmsData = [
   {
+    name: "None",
+    code: ``,
+    params: "",
+    description: "Select the desired recursive function"
+  },
+  {
     name: "Fibonacci",
     code: `function fibonacci(n) {
   if (n <= 1) return n;

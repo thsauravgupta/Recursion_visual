@@ -43,8 +43,8 @@ class RecursionTreeVisualizer {
             { label: "0.5x", value: 2000 },
             { label: "1x", value: 1000 },
             { label: "2x", value: 500 },
-            { label: "3x", value: 300 },
-            { label: "5x", value: 100 }
+            { label: "3x", value: 333 },
+            { label: "5x", value: 200 }
         ];
 
         this.nodeColors = {
@@ -197,6 +197,55 @@ class RecursionTreeVisualizer {
                 this.switchTab(e.target.dataset.tab);
             });
         });
+
+        // Tab press in code editor only moves caret 
+        this.elements.codeEditor.executionTime.addEventListener('keydown', (e) => {
+            switch(e.key){
+                case "Tab": e.preventDefault(); // prevent focus switch
+                            const start = e.target.selectionStart;
+                            const end = e.target.selectionEnd;
+
+                            // set textarea value to: text before caret + tab + text after caret
+                            const value = e.target.value;
+                            e.target.value = value.substring(0, start) + "\t" + value.substring(end);
+
+                            // move the caret
+                            e.target.selectionStart = e.target.selectionEnd = start + 1;
+                            break;
+            }
+                
+        });
+
+        // Code editor brackets and quotes matching
+        const editor = this.templates.codeEditor;
+
+        editor.addEventListener('keydown', (e) => {
+        const pairs = {
+            "(": ")",
+            "[": "]",
+            "{": "}",
+            "'": "'",
+            "\"": "\"",
+            "`": "`"
+        };
+
+        const open = e.key;
+        const close = pairs[open];
+
+        // If the key is a matchable opening character
+        if (close) {
+            e.preventDefault();
+
+            const start = editor.selectionStart;
+            const end = editor.selectionEnd;
+            const value = editor.value;
+
+            // Insert the pair and move caret in between
+            editor.value = value.substring(0, start) + open + close + value.substring(end);
+            editor.selectionStart = editor.selectionEnd = start + 1;
+        }
+        });
+
 
         // Modal controls - Fixed event handling
         this.elements.helpBtn.addEventListener('click', (e) => {
