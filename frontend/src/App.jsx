@@ -1,9 +1,30 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import * as d3 from 'd3';
 import { Chart } from 'chart.js/auto';
+
+// All AI components
+import aiAnalyze from './ai_component/ai_analyze';
+import AIPanel from './ai_component/ai_panel';
 import Ai_response from './ai_component/ai_reponse';
+import generateAIContent from './ai_component/gemini_end';
+
+// Utility
 import { useAppState } from './util/constants';
-import * as icons from "./util/icons"
+import {
+  PlayIcon,
+  HelpIcon,
+  PrevIcon,
+  NextIcon,
+  BrainIcon,
+  AlertIcon,
+  LightbulbIcon,
+  WandIcon
+} from "./util/icons";
+
+// Components
+import BigOVisualizer from './Components/complexity';
+import CallStackPanel from './Components/stack_panel';
+import Visualization from './Components/visualization';
 
 
 // --- Helper Icon Components ---
