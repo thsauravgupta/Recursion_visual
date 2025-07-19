@@ -27,3 +27,6 @@ node_modules
 
 #virtual environment
 venv/
+
+#api key in config
+config.js

@@ -1,4 +1,5 @@
 import React from "react";
+import { apiKey } from "../../config";
 
 // Function to call the Gemini API
 async function generateAIContent(prompt) {
@@ -10,7 +11,6 @@ async function generateAIContent(prompt) {
   const payload = { contents: chatHistory };
 
   // API key is left as an empty string; Canvas will automatically provide it at runtime.
-  const apiKey = "AIzaSyDGYoZI6TNo6OsdQvHUksBRV1TlIoNP_TQ";
   const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
 
   try {
