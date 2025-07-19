@@ -1,239 +1,243 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import * as d3 from 'd3';
 import { Chart } from 'chart.js/auto';
+import Ai_response from './ai_component/ai_reponse';
+import { useAppState } from './util/constants';
+import * as icons from "./util/icons"
+
 
 // --- Helper Icon Components ---
-const PlayIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>;
-const HelpIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>;
-const PrevIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 19 2 12 11 5 11 19"></polygon><polygon points="22 19 13 12 22 5 22 19"></polygon></svg>;
-const NextIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 19 22 12 13 5 13 19"></polygon><polygon points="2 19 11 12 2 5 2 19"></polygon></svg>;
-const BrainIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.44 2.5 2.5 0 0 1 2.5-4.02V6.5a2.5 2.5 0 0 1 5 0v2.5a2.5 2.5 0 0 1 2.5 4.02 2.5 2.5 0 0 1-2.96 3.44A2.5 2.5 0 0 1 12 19.5v-15A2.5 2.5 0 0 1 9.5 2z"></path></svg>;
-const AlertIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>;
-const LightbulbIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-7 7c0 3.04 1.63 5.5 4 6.58V20a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2v-3.42A6.99 6.99 0 0 0 19 9a7 7 0 0 0-7-7z"></path></svg>;
-const WandIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 4V2m0 14v-2m-3.5-8.5L10 2m.5 8.5L9 9m-5 5l-2-2m2 6l-2 2m12-6l2 2m-2-4l2-2m-4-2l-2-2m.5 12.5L10 14m-2.5 5.5L6 18m-2-2l-1.5-1.5M22 12h-2m-2-3.5l-1-1M4 12H2m2-3.5l-1-1m14 0l1-1m-14 7l-1 1"></path></svg>;
+// const PlayIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>;
+// const HelpIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>;
+// const PrevIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 19 2 12 11 5 11 19"></polygon><polygon points="22 19 13 12 22 5 22 19"></polygon></svg>;
+// const NextIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 19 22 12 13 5 13 19"></polygon><polygon points="2 19 11 12 2 5 2 19"></polygon></svg>;
+// const BrainIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.44 2.5 2.5 0 0 1 2.5-4.02V6.5a2.5 2.5 0 0 1 5 0v2.5a2.5 2.5 0 0 1 2.5 4.02 2.5 2.5 0 0 1-2.96 3.44A2.5 2.5 0 0 1 12 19.5v-15A2.5 2.5 0 0 1 9.5 2z"></path></svg>;
+// const AlertIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>;
+// const LightbulbIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-7 7c0 3.04 1.63 5.5 4 6.58V20a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2v-3.42A6.99 6.99 0 0 0 19 9a7 7 0 0 0-7-7z"></path></svg>;
+// const WandIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 4V2m0 14v-2m-3.5-8.5L10 2m.5 8.5L9 9m-5 5l-2-2m2 6l-2 2m12-6l2 2m-2-4l2-2m-4-2l-2-2m.5 12.5L10 14m-2.5 5.5L6 18m-2-2l-1.5-1.5M22 12h-2m-2-3.5l-1-1M4 12H2m2-3.5l-1-1m14 0l1-1m-14 7l-1 1"></path></svg>;
 
 // --- Default Code Examples ---
-const EXAMPLES = {
-  fibonacci: `// Fibonacci: O(2^n)
-function fibonacci(n) {
-  if (n <= 1) return n;
-  return fibonacci(n - 1) + fibonacci(n - 2);
-}`,
-  factorial: `// Factorial: O(n)
-function factorial(n) {
-  if (n === 0) return 1;
-  return n * factorial(n - 1);
-}`,
-};
+// const EXAMPLES = {
+//   fibonacci: `// Fibonacci: O(2^n)
+// function fibonacci(n) {
+//   if (n <= 1) return n;
+//   return fibonacci(n - 1) + fibonacci(n - 2);
+// }`,
+//   factorial: `// Factorial: O(n)
+// function factorial(n) {
+//   if (n === 0) return 1;
+//   return n * factorial(n - 1);
+// }`,
+// };
 
-const CUSTOM_ALGORITHM_TEMPLATE = `// Write your own recursive function
-function customAlgorithm(n) {
-  if (n <= 0) return 0;
-  return n + customAlgorithm(n - 1);
-}`;
+// const CUSTOM_ALGORITHM_TEMPLATE = `// Write your own recursive function
+// function customAlgorithm(n) {
+//   if (n <= 0) return 0;
+//   return n + customAlgorithm(n - 1);
+// }`;
 
-// --- Centralized AI Analysis Function ---
-const aiAnalyze = async (promptText) => {
-    try {
-        const chatHistory = [{ role: "user", parts: [{ text: promptText }] }];
-        const payload = { contents: chatHistory };
-        const apiKey = "";
-        // This is the direct API endpoint. It will work in Gemini's preview.
-        // For local development with Vite, change this to: /api/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}
-        // ...and ensure you have the vite.config.js proxy setup.
-        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
-        const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-        if (!response.ok) throw new Error(`API request failed with status ${response.status}`);
-        const result = await response.json();
-        if (!result.candidates?.[0]?.content?.parts?.[0]?.text) return null;
-        return result.candidates[0].content.parts[0].text.replace(/```(json|javascript)?|```/g, '').trim();
-    } catch (e) {
-        console.error("AI analysis error:", e);
-        return null;
-    }
-};
+// // --- Centralized AI Analysis Function ---
+// const aiAnalyze = async (promptText) => {
+//     try {
+//         const chatHistory = [{ role: "user", parts: [{ text: promptText }] }];
+//         const payload = { contents: chatHistory };
+//         const apiKey = "";
+//         // This is the direct API endpoint. It will work in Gemini's preview.
+//         // For local development with Vite, change this to: /api/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}
+//         // ...and ensure you have the vite.config.js proxy setup.
+//         const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+//         const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+//         if (!response.ok) throw new Error(`API request failed with status ${response.status}`);
+//         const result = await response.json();
+//         if (!result.candidates?.[0]?.content?.parts?.[0]?.text) return null;
+//         return result.candidates[0].content.parts[0].text.replace(/```(json|javascript)?|```/g, '').trim();
+//     } catch (e) {
+//         console.error("AI analysis error:", e);
+//         return null;
+//     }
+// };
 
-// --- Sub-Components ---
-const Visualization = ({ trace, currentStep, onNodeClick }) => {
-    const svgRef = useRef();
-    useEffect(() => {
-        const svg = d3.select(svgRef.current);
-        svg.selectAll("*").remove();
-        if (!trace || trace.length === 0) return;
-        const traceSubset = trace.slice(0, currentStep + 1);
-        const callMap = new Map();
-        let root = null;
-        traceSubset.forEach(event => {
-            if (event.type === 'call') {
-                const node = { ...event, children: [], data: event };
-                callMap.set(event.id, node);
-                if (event.parentId === null) root = node;
-                else {
-                    const parent = callMap.get(event.parentId);
-                    if (parent) parent.children.push(node);
-                }
-            } else if (event.type === 'return') {
-                const node = callMap.get(event.id);
-                if (node) node.returnValue = event.value;
-            }
-        });
-        if (!root) return;
-        const hierarchy = d3.hierarchy(root);
-        const treeLayout = d3.tree().nodeSize([150, 120]);
-        const treeData = treeLayout(hierarchy);
-        const nodes = treeData.descendants();
-        const links = treeData.links();
-        const g = svg.append("g");
-        const zoom = d3.zoom().scaleExtent([0.1, 4]).on("zoom", (event) => g.attr("transform", event.transform));
-        svg.call(zoom);
-        const svgWidth = svg.node().getBoundingClientRect().width;
-        const svgHeight = svg.node().getBoundingClientRect().height;
-        const initialTransform = d3.zoomIdentity.translate(svgWidth / 2, svgHeight / 4).scale(1);
-        svg.call(zoom.transform, initialTransform);
-        g.selectAll(".link").data(links).join("path").attr("d", d3.linkVertical().x(n => n.x).y(n => n.y)).attr("fill", "none").attr("stroke", "#555").attr("stroke-opacity", 0.7).attr("stroke-width", 1.5);
-        const nodeEnter = g.selectAll(".node").data(nodes).join("g").attr("transform", d => `translate(${d.x},${d.y})`).on("click", (event, d) => onNodeClick(d.data)).style("cursor", "pointer");
-        nodeEnter.append("circle").attr("r", 40).attr("fill", d => d.data.returnValue !== undefined ? "#a7f3d0" : "#bae6fd").attr("stroke", d => d.data.id === trace[currentStep]?.id ? "#ef4444" : "#075985").attr("stroke-width", d => d.data.id === trace[currentStep]?.id ? 4 : 2);
-        nodeEnter.append("text").attr("dy", "-0.5em").attr("text-anchor", "middle").text(d => `${d.data.funcName}(${d.data.args.join(', ')})`).style("font-size", "12px").style("font-weight", "600");
-        nodeEnter.append("text").attr("dy", "1em").attr("text-anchor", "middle").text(d => d.data.returnValue !== undefined ? `=> ${JSON.stringify(d.data.returnValue)}` : '...').style("font-size", "14px").style("font-weight", "bold").attr("fill", "#059669");
-    }, [trace, currentStep, onNodeClick]);
-    return <svg ref={svgRef} className="w-full h-full bg-gray-50 rounded-lg shadow-inner"></svg>;
-};
+// // --- Sub-Components ---
+// const Visualization = ({ trace, currentStep, onNodeClick }) => {
+//     const svgRef = useRef();
+//     useEffect(() => {
+//         const svg = d3.select(svgRef.current);
+//         svg.selectAll("*").remove();
+//         if (!trace || trace.length === 0) return;
+//         const traceSubset = trace.slice(0, currentStep + 1);
+//         const callMap = new Map();
+//         let root = null;
+//         traceSubset.forEach(event => {
+//             if (event.type === 'call') {
+//                 const node = { ...event, children: [], data: event };
+//                 callMap.set(event.id, node);
+//                 if (event.parentId === null) root = node;
+//                 else {
+//                     const parent = callMap.get(event.parentId);
+//                     if (parent) parent.children.push(node);
+//                 }
+//             } else if (event.type === 'return') {
+//                 const node = callMap.get(event.id);
+//                 if (node) node.returnValue = event.value;
+//             }
+//         });
+//         if (!root) return;
+//         const hierarchy = d3.hierarchy(root);
+//         const treeLayout = d3.tree().nodeSize([150, 120]);
+//         const treeData = treeLayout(hierarchy);
+//         const nodes = treeData.descendants();
+//         const links = treeData.links();
+//         const g = svg.append("g");
+//         const zoom = d3.zoom().scaleExtent([0.1, 4]).on("zoom", (event) => g.attr("transform", event.transform));
+//         svg.call(zoom);
+//         const svgWidth = svg.node().getBoundingClientRect().width;
+//         const svgHeight = svg.node().getBoundingClientRect().height;
+//         const initialTransform = d3.zoomIdentity.translate(svgWidth / 2, svgHeight / 4).scale(1);
+//         svg.call(zoom.transform, initialTransform);
+//         g.selectAll(".link").data(links).join("path").attr("d", d3.linkVertical().x(n => n.x).y(n => n.y)).attr("fill", "none").attr("stroke", "#555").attr("stroke-opacity", 0.7).attr("stroke-width", 1.5);
+//         const nodeEnter = g.selectAll(".node").data(nodes).join("g").attr("transform", d => `translate(${d.x},${d.y})`).on("click", (event, d) => onNodeClick(d.data)).style("cursor", "pointer");
+//         nodeEnter.append("circle").attr("r", 40).attr("fill", d => d.data.returnValue !== undefined ? "#a7f3d0" : "#bae6fd").attr("stroke", d => d.data.id === trace[currentStep]?.id ? "#ef4444" : "#075985").attr("stroke-width", d => d.data.id === trace[currentStep]?.id ? 4 : 2);
+//         nodeEnter.append("text").attr("dy", "-0.5em").attr("text-anchor", "middle").text(d => `${d.data.funcName}(${d.data.args.join(', ')})`).style("font-size", "12px").style("font-weight", "600");
+//         nodeEnter.append("text").attr("dy", "1em").attr("text-anchor", "middle").text(d => d.data.returnValue !== undefined ? `=> ${JSON.stringify(d.data.returnValue)}` : '...').style("font-size", "14px").style("font-weight", "bold").attr("fill", "#059669");
+//     }, [trace, currentStep, onNodeClick]);
+//     return <svg ref={svgRef} className="w-full h-full bg-gray-50 rounded-lg shadow-inner"></svg>;
+// };
 
-const AIPanel = ({ selectedNode, code, cognitiveLoad, onWhatIf }) => {
-    const [explanation, setExplanation] = useState('');
-    const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState(null);
-    const generateExplanation = useCallback(async (node, currentCode, load) => {
-        if (!node) return;
-        setIsLoading(true);
-        setExplanation('');
-        setError(null);
-        const { funcName, args, returnValue } = node;
-        const state = returnValue !== undefined ? `has just returned with the value ${JSON.stringify(returnValue)}` : `is being called with arguments [${args.join(', ')}]`;
-        let prompt = `You are an expert CS tutor. Explain this specific function call step. Identify if it's a base case or recursive step, its purpose, and how the return value (if any) was calculated.\nCode:\n\`\`\`javascript\n${currentCode}\n\`\`\`\nFunction Call State:\n- Name: ${funcName}\n- State: This call ${state}.`;
-        if (load > 65) {
-            prompt += "\n\nIMPORTANT: The user seems to be struggling. Make your explanation extra simple. Use a real-world analogy (like Russian dolls) to explain the call stack for this step. Be encouraging."
-        }
-        const explanationText = await aiAnalyze(prompt);
-        if (explanationText) setExplanation(explanationText);
-        else setError("Sorry, I couldn't fetch an explanation.");
-        setIsLoading(false);
-    }, []);
-    useEffect(() => {
-        if (selectedNode) generateExplanation(selectedNode, code, cognitiveLoad);
-    }, [selectedNode, code, cognitiveLoad, generateExplanation]);
-    return (
-        <div className="flex-grow flex flex-col p-4">
-            <h3 className="text-lg font-bold text-gray-800 mb-3">🤖 AI Tutor</h3>
-            {!selectedNode ? (
-                <div className="text-center text-gray-500 mt-8"><div className="text-4xl mb-2">🤔</div><p>Click a node for an explanation.</p></div>
-            ) : isLoading ? (
-                <div className="flex items-center justify-center h-full"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div></div>
-            ) : error ? (
-                 <div className="text-red-500 bg-red-100 p-3 rounded-md">{error}</div>
-            ) : (
-                <>
-                    <div className="prose prose-sm max-w-none text-gray-700 whitespace-pre-wrap mb-4 flex-grow overflow-y-auto">{explanation}</div>
-                    <button onClick={onWhatIf} className="mt-auto w-full bg-indigo-100 text-indigo-700 font-semibold py-2 px-4 rounded-lg hover:bg-indigo-200 flex items-center justify-center gap-2">
-                        <WandIcon /> Analyze 'What-If' Scenario
-                    </button>
-                </>
-            )}
-        </div>
-    );
-};
+// const AIPanel = ({ selectedNode, code, cognitiveLoad, onWhatIf }) => {
+//     const [explanation, setExplanation] = useState('');
+//     const [isLoading, setIsLoading] = useState(false);
+//     const [error, setError] = useState(null);
+//     const generateExplanation = useCallback(async (node, currentCode, load) => {
+//         if (!node) return;
+//         setIsLoading(true);
+//         setExplanation('');
+//         setError(null);
+//         const { funcName, args, returnValue } = node;
+//         const state = returnValue !== undefined ? `has just returned with the value ${JSON.stringify(returnValue)}` : `is being called with arguments [${args.join(', ')}]`;
+//         let prompt = `You are an expert CS tutor. Explain this specific function call step. Identify if it's a base case or recursive step, its purpose, and how the return value (if any) was calculated.\nCode:\n\`\`\`javascript\n${currentCode}\n\`\`\`\nFunction Call State:\n- Name: ${funcName}\n- State: This call ${state}.`;
+//         if (load > 65) {
+//             prompt += "\n\nIMPORTANT: The user seems to be struggling. Make your explanation extra simple. Use a real-world analogy (like Russian dolls) to explain the call stack for this step. Be encouraging."
+//         }
+//         const explanationText = await aiAnalyze(prompt);
+//         if (explanationText) setExplanation(explanationText);
+//         else setError("Sorry, I couldn't fetch an explanation.");
+//         setIsLoading(false);
+//     }, []);
+//     useEffect(() => {
+//         if (selectedNode) generateExplanation(selectedNode, code, cognitiveLoad);
+//     }, [selectedNode, code, cognitiveLoad, generateExplanation]);
+//     return (
+//         <div className="flex-grow flex flex-col p-4">
+//             <h3 className="text-lg font-bold text-gray-800 mb-3">🤖 AI Tutor</h3>
+//             {!selectedNode ? (
+//                 <div className="text-center text-gray-500 mt-8"><div className="text-4xl mb-2">🤔</div><p>Click a node for an explanation.</p></div>
+//             ) : isLoading ? (
+//                 <div className="flex items-center justify-center h-full"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div></div>
+//             ) : error ? (
+//                  <div className="text-red-500 bg-red-100 p-3 rounded-md">{error}</div>
+//             ) : (
+//                 <>
+//                     <div className="prose prose-sm max-w-none text-gray-700 whitespace-pre-wrap mb-4 flex-grow overflow-y-auto">{explanation}</div>
+//                     <button onClick={onWhatIf} className="mt-auto w-full bg-indigo-100 text-indigo-700 font-semibold py-2 px-4 rounded-lg hover:bg-indigo-200 flex items-center justify-center gap-2">
+//                         <WandIcon /> Analyze 'What-If' Scenario
+//                     </button>
+//                 </>
+//             )}
+//         </div>
+//     );
+// };
 
-const CallStackPanel = ({ trace, currentStep }) => {
-    const [stack, setStack] = useState([]);
-    useEffect(() => {
-        const currentStack = [];
-        const traceSubset = trace.slice(0, currentStep + 1);
-        for (const event of traceSubset) {
-            if (event.type === 'call') {
-                currentStack.push({ id: event.id, funcName: event.funcName, args: event.args });
-            } else if (event.type === 'return') {
-                if (currentStack.length > 0 && currentStack[currentStack.length - 1].id === event.id) {
-                    currentStack.pop();
-                }
-            }
-        }
-        setStack(currentStack);
-    }, [trace, currentStep]);
-    return (
-        <div className="space-y-4">
-            <h3 className="text-lg font-bold text-gray-800">Call Stack</h3>
-            <div className="bg-gray-100 p-2 rounded-lg min-h-[100px] flex flex-col-reverse justify-start">
-                {stack.length === 0 ? <p className="text-center text-gray-500 text-sm">Stack is empty.</p> :
-                 stack.map((call, index) => (
-                    <div key={`${call.id}-${index}`} className={`p-2 mt-1 rounded-md text-center font-mono text-sm ${index === stack.length - 1 ? 'bg-blue-200 border-2 border-blue-400' : 'bg-gray-200'}`}>
-                        {call.funcName}({call.args.join(', ')})
-                    </div>
-                ))}
-            </div>
-        </div>
-    );
-};
+// const CallStackPanel = ({ trace, currentStep }) => {
+//     const [stack, setStack] = useState([]);
+//     useEffect(() => {
+//         const currentStack = [];
+//         const traceSubset = trace.slice(0, currentStep + 1);
+//         for (const event of traceSubset) {
+//             if (event.type === 'call') {
+//                 currentStack.push({ id: event.id, funcName: event.funcName, args: event.args });
+//             } else if (event.type === 'return') {
+//                 if (currentStack.length > 0 && currentStack[currentStack.length - 1].id === event.id) {
+//                     currentStack.pop();
+//                 }
+//             }
+//         }
+//         setStack(currentStack);
+//     }, [trace, currentStep]);
+//     return (
+//         <div className="space-y-4">
+//             <h3 className="text-lg font-bold text-gray-800">Call Stack</h3>
+//             <div className="bg-gray-100 p-2 rounded-lg min-h-[100px] flex flex-col-reverse justify-start">
+//                 {stack.length === 0 ? <p className="text-center text-gray-500 text-sm">Stack is empty.</p> :
+//                  stack.map((call, index) => (
+//                     <div key={`${call.id}-${index}`} className={`p-2 mt-1 rounded-md text-center font-mono text-sm ${index === stack.length - 1 ? 'bg-blue-200 border-2 border-blue-400' : 'bg-gray-200'}`}>
+//                         {call.funcName}({call.args.join(', ')})
+//                     </div>
+//                 ))}
+//             </div>
+//         </div>
+//     );
+// };
 
-const BigOVisualizer = ({ complexityData, bigO }) => {
-    const chartRef = useRef(null);
-    const chartInstance = useRef(null);
-    useEffect(() => {
-        if (!complexityData || complexityData.length === 0 || !chartRef.current) return;
-        const getBigOData = (n) => {
-            const pattern = bigO?.toLowerCase() || '';
-            if (pattern.includes('2^n')) return Math.pow(2, n);
-            if (pattern.includes('n^2')) return n * n;
-            if (pattern.includes('n log n')) return n * Math.log2(n);
-            if (pattern.includes('linear') || pattern.includes('n')) return n;
-            if (pattern.includes('log n')) return Math.log2(n);
-            return 1;
-        };
-        const labels = complexityData.map(d => d.n);
-        const theoreticalData = labels.map(n => getBigOData(n));
-        const maxTheoretical = Math.max(...theoreticalData);
-        const maxActual = Math.max(...complexityData.map(d => d.ops));
-        const scaleFactor = maxTheoretical > 0 ? maxActual / maxTheoretical : 1;
-        if (chartInstance.current) chartInstance.current.destroy();
-        const ctx = chartRef.current.getContext('2d');
-        chartInstance.current = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: labels,
-                datasets: [{ label: 'Actual Operations', data: complexityData.map(d => d.ops), borderColor: 'rgb(59, 130, 246)', tension: 0.1 },
-                           { label: `Theoretical ${bigO || ''}`, data: theoreticalData.map(d => d * scaleFactor), borderColor: 'rgb(239, 68, 68)', borderDash: [5, 5], tension: 0.1 }]
-            },
-            options: { responsive: true, maintainAspectRatio: false, plugins: { title: { display: true, text: 'Complexity Analysis' } }, scales: { x: { title: { display: true, text: 'Input Size (n)' } }, y: { title: { display: true, text: 'Operations' } } } }
-        });
-    }, [complexityData, bigO]);
-    return (
-        <div className="space-y-4 p-4">
-            <h3 className="text-lg font-bold text-gray-800">Big O Visualizer</h3>
-            <div className="relative h-64">
-                {complexityData.length > 0 ? <canvas ref={chartRef}></canvas> : <p className="text-center text-gray-500">Run an algorithm to see its complexity plot.</p>}
-            </div>
-        </div>
-    );
-};
+// const BigOVisualizer = ({ complexityData, bigO }) => {
+//     const chartRef = useRef(null);
+//     const chartInstance = useRef(null);
+//     useEffect(() => {
+//         if (!complexityData || complexityData.length === 0 || !chartRef.current) return;
+//         const getBigOData = (n) => {
+//             const pattern = bigO?.toLowerCase() || '';
+//             if (pattern.includes('2^n')) return Math.pow(2, n);
+//             if (pattern.includes('n^2')) return n * n;
+//             if (pattern.includes('n log n')) return n * Math.log2(n);
+//             if (pattern.includes('linear') || pattern.includes('n')) return n;
+//             if (pattern.includes('log n')) return Math.log2(n);
+//             return 1;
+//         };
+//         const labels = complexityData.map(d => d.n);
+//         const theoreticalData = labels.map(n => getBigOData(n));
+//         const maxTheoretical = Math.max(...theoreticalData);
+//         const maxActual = Math.max(...complexityData.map(d => d.ops));
+//         const scaleFactor = maxTheoretical > 0 ? maxActual / maxTheoretical : 1;
+//         if (chartInstance.current) chartInstance.current.destroy();
+//         const ctx = chartRef.current.getContext('2d');
+//         chartInstance.current = new Chart(ctx, {
+//             type: 'line',
+//             data: {
+//                 labels: labels,
+//                 datasets: [{ label: 'Actual Operations', data: complexityData.map(d => d.ops), borderColor: 'rgb(59, 130, 246)', tension: 0.1 },
+//                            { label: `Theoretical ${bigO || ''}`, data: theoreticalData.map(d => d * scaleFactor), borderColor: 'rgb(239, 68, 68)', borderDash: [5, 5], tension: 0.1 }]
+//             },
+//             options: { responsive: true, maintainAspectRatio: false, plugins: { title: { display: true, text: 'Complexity Analysis' } }, scales: { x: { title: { display: true, text: 'Input Size (n)' } }, y: { title: { display: true, text: 'Operations' } } } }
+//         });
+//     }, [complexityData, bigO]);
+//     return (
+//         <div className="space-y-4 p-4">
+//             <h3 className="text-lg font-bold text-gray-800">Big O Visualizer</h3>
+//             <div className="relative h-64">
+//                 {complexityData.length > 0 ? <canvas ref={chartRef}></canvas> : <p className="text-center text-gray-500">Run an algorithm to see its complexity plot.</p>}
+//             </div>
+//         </div>
+//     );
+// };
 
 // --- Main App Component ---
 export default function App() {
-  const [code, setCode] = useState(EXAMPLES.fibonacci);
-  const [initialArgs, setInitialArgs] = useState('5');
-  const [trace, setTrace] = useState([]);
-  const [currentStep, setCurrentStep] = useState(0);
-  const [error, setError] = useState('');
-  const [selectedNode, setSelectedNode] = useState(null);
-  const [showHelp, setShowHelp] = useState(true);
+//   const [code, setCode] = useState(EXAMPLES.fibonacci);
+//   const [initialArgs, setInitialArgs] = useState('5');
+//   const [trace, setTrace] = useState([]);
+//   const [currentStep, setCurrentStep] = useState(0);
+//   const [error, setError] = useState('');
+//   const [selectedNode, setSelectedNode] = useState(null);
+//   const [showHelp, setShowHelp] = useState(true);
   
-  const [patternInfo, setPatternInfo] = useState({ pattern: '', justification: '', isLoading: false });
-  const [cognitiveLoad, setCognitiveLoad] = useState(10);
-  const [misconception, setMisconception] = useState({ alert: '', isLoading: false });
-  const [optimization, setOptimization] = useState({ suggestion: '', code: '', isLoading: false });
-  const [complexityData, setComplexityData] = useState([]);
-  const [activeTab, setActiveTab] = useState('tutor');
+//   const [patternInfo, setPatternInfo] = useState({ pattern: '', justification: '', isLoading: false });
+//   const [cognitiveLoad, setCognitiveLoad] = useState(10);
+//   const [misconception, setMisconception] = useState({ alert: '', isLoading: false });
+//   const [optimization, setOptimization] = useState({ suggestion: '', code: '', isLoading: false });
+//   const [complexityData, setComplexityData] = useState([]);
+//   const [activeTab, setActiveTab] = useState('tutor');
   
-  const sliderRef = useRef(null);
-  const lastSliderInteraction = useRef({ time: 0, value: 0 });
+//   const sliderRef = useRef(null);
+//   const lastSliderInteraction = useRef({ time: 0, value: 0 });
 
   useEffect(() => {
     const hasVisited = localStorage.getItem('recursivis-visited');
