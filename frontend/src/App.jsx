@@ -9,7 +9,7 @@ import Ai_response from './ai_component/ai_reponse';
 import generateAIContent from './ai_component/gemini_end';
 
 // Utility
-import { useAppState } from './util/constants';
+// import { useAppState } from './util/constants';
 import {
   PlayIcon,
   HelpIcon,
@@ -38,24 +38,24 @@ import Visualization from './Components/visualization';
 // const WandIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 4V2m0 14v-2m-3.5-8.5L10 2m.5 8.5L9 9m-5 5l-2-2m2 6l-2 2m12-6l2 2m-2-4l2-2m-4-2l-2-2m.5 12.5L10 14m-2.5 5.5L6 18m-2-2l-1.5-1.5M22 12h-2m-2-3.5l-1-1M4 12H2m2-3.5l-1-1m14 0l1-1m-14 7l-1 1"></path></svg>;
 
 // --- Default Code Examples ---
-// const EXAMPLES = {
-//   fibonacci: `// Fibonacci: O(2^n)
-// function fibonacci(n) {
-//   if (n <= 1) return n;
-//   return fibonacci(n - 1) + fibonacci(n - 2);
-// }`,
-//   factorial: `// Factorial: O(n)
-// function factorial(n) {
-//   if (n === 0) return 1;
-//   return n * factorial(n - 1);
-// }`,
-// };
+const EXAMPLES = {
+  fibonacci: `// Fibonacci: O(2^n)
+function fibonacci(n) {
+  if (n <= 1) return n;
+  return fibonacci(n - 1) + fibonacci(n - 2);
+}`,
+  factorial: `// Factorial: O(n)
+function factorial(n) {
+  if (n === 0) return 1;
+  return n * factorial(n - 1);
+}`,
+};
 
-// const CUSTOM_ALGORITHM_TEMPLATE = `// Write your own recursive function
-// function customAlgorithm(n) {
-//   if (n <= 0) return 0;
-//   return n + customAlgorithm(n - 1);
-// }`;
+const CUSTOM_ALGORITHM_TEMPLATE = `// Write your own recursive function
+function customAlgorithm(n) {
+  if (n <= 0) return 0;
+  return n + customAlgorithm(n - 1);
+}`;
 
 // // --- Centralized AI Analysis Function ---
 // const aiAnalyze = async (promptText) => {
@@ -242,23 +242,23 @@ import Visualization from './Components/visualization';
 
 // --- Main App Component ---
 export default function App() {
-//   const [code, setCode] = useState(EXAMPLES.fibonacci);
-//   const [initialArgs, setInitialArgs] = useState('5');
-//   const [trace, setTrace] = useState([]);
-//   const [currentStep, setCurrentStep] = useState(0);
-//   const [error, setError] = useState('');
-//   const [selectedNode, setSelectedNode] = useState(null);
-//   const [showHelp, setShowHelp] = useState(true);
+  const [code, setCode] = useState(EXAMPLES.fibonacci);
+  const [initialArgs, setInitialArgs] = useState('5');
+  const [trace, setTrace] = useState([]);
+  const [currentStep, setCurrentStep] = useState(0);
+  const [error, setError] = useState('');
+  const [selectedNode, setSelectedNode] = useState(null);
+  const [showHelp, setShowHelp] = useState(true);
   
-//   const [patternInfo, setPatternInfo] = useState({ pattern: '', justification: '', isLoading: false });
-//   const [cognitiveLoad, setCognitiveLoad] = useState(10);
-//   const [misconception, setMisconception] = useState({ alert: '', isLoading: false });
-//   const [optimization, setOptimization] = useState({ suggestion: '', code: '', isLoading: false });
-//   const [complexityData, setComplexityData] = useState([]);
-//   const [activeTab, setActiveTab] = useState('tutor');
+  const [patternInfo, setPatternInfo] = useState({ pattern: '', justification: '', isLoading: false });
+  const [cognitiveLoad, setCognitiveLoad] = useState(10);
+  const [misconception, setMisconception] = useState({ alert: '', isLoading: false });
+  const [optimization, setOptimization] = useState({ suggestion: '', code: '', isLoading: false });
+  const [complexityData, setComplexityData] = useState([]);
+  const [activeTab, setActiveTab] = useState('tutor');
   
-//   const sliderRef = useRef(null);
-//   const lastSliderInteraction = useRef({ time: 0, value: 0 });
+  const sliderRef = useRef(null);
+  const lastSliderInteraction = useRef({ time: 0, value: 0 });
 
   useEffect(() => {
     const hasVisited = localStorage.getItem('recursivis-visited');

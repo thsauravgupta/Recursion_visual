@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 // Import the function itself, not its immediate invocation
-import generateAIContent from './ai_component/gemini_end';
+import generateAIContent from './gemini_end';
 
 function Ai_response() {
   // State to hold the AI response
